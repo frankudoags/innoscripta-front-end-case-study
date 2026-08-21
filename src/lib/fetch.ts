@@ -1,0 +1,30 @@
+import { registry } from './provider/registry'
+import type { Article, ArticleFilters, Paginated } from './types'
+
+export async function fetchAll(
+  filters: ArticleFilters,
+  page = 1,
+): Promise<Paginated<Article>> {
+  const activeProviders = registry.filterByIds(filters.sources)
+
+  const results = await Promise.all(
+    activeProviders.map((p) => p.search(filters, page)),
+  )
+
+  let items = results.flatMap((r) => r.items)
+
+  if (filters.authors?.length) {
+    items = items.filter((a) => filters.authors?.includes(a.author))
+  }
+
+  items.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt))
+
+  const totalPages = filters.authors?.length
+    ? 1
+    : Math.max(1, ...results.map((r) => r.totalPages))
+
+  return {
+    items,
+    totalPages,
+  }
+}

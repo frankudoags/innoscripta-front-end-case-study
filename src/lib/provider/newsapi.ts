@@ -68,14 +68,13 @@ export const newsapiProvider: NewsProvider = {
       language: 'en',
     })
 
-    const endpoint =
-      filters.keyword || filters.fromDate || filters.toDate
-        ? 'everything'
-        : 'top-headlines'
+    const endpoint = filters.keyword ? 'everything' : 'top-headlines'
 
     if (filters.keyword) params.set('q', filters.keyword)
-    if (filters.fromDate) params.set('from', filters.fromDate)
-    if (filters.toDate) params.set('to', filters.toDate)
+    if (endpoint === 'everything') {
+      if (filters.fromDate) params.set('from', filters.fromDate)
+      if (filters.toDate) params.set('to', filters.toDate)
+    }
 
     if (filters.categories?.length) {
       if (endpoint === 'top-headlines') {

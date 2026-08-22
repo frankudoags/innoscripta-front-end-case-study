@@ -7,9 +7,19 @@ export async function fetchAll(
 ): Promise<Paginated<Article>> {
   const activeProviders = registry.filterByIds(filters.sources)
 
-  const results = await Promise.all(
+  const settled = await Promise.allSettled(
     activeProviders.map((p) => p.search(filters, page)),
   )
+
+  const results = settled
+    .filter((r): r is PromiseFulfilledResult<Paginated<Article>> => r.status === 'fulfilled')
+    .map((r) => r.value)
+
+  if (results.length === 0) {
+    const first = settled.find((r) => r.status === 'rejected')
+    if (first && first.status === 'rejected') throw first.reason
+    return { items: [], totalPages: 1 }
+  }
 
   let items = results.flatMap((r) => r.items)
 

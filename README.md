@@ -22,7 +22,7 @@ Built with **React + TypeScript + Vite**, **TanStack Query**, **nuqs**, **Zod**,
 - (Optional) Docker Engine (Docker Desktop or a bare Docker daemon)
 
 ## Setup
-1. Copy the env template and fill in your API keys:
+1. Copy the env template into the env file, the keys there already work fine:
    ```bash
    cp .env.example .env
    ```

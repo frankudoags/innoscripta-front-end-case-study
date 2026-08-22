@@ -75,15 +75,20 @@ function Feed() {
   );
 
   const { data, isLoading, isError } = useArticles(effectiveFilters, page);
-
+  
+  // aggregated articles list here
   const articles = useMemo(() => data?.items ?? [], [data]);
 
+  // to get filters for authors, we extract the authors and send the remaining filters
   const authorSourceFilters: ArticleFilters = useMemo(() => {
     const { authors: _authors, ...rest } = effectiveFilters;
     return rest;
   }, [effectiveFilters]);
+
+  // we fetch articles just for authors as there is no direct api to call authors from the providers as of today
   const authorQuery = useArticles(authorSourceFilters, 1);
 
+  //we extract the authors name from the articles
   const authors = useMemo(
     () =>
       Array.from(

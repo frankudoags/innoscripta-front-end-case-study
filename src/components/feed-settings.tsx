@@ -48,6 +48,14 @@ export function FeedSettings({
 
   const uniqueAuthors = Array.from(new Set(authors)).filter(Boolean)
 
+  const sourceItems = Object.fromEntries(
+    registry.all().map((p) => [p.id, p.name]),
+  )
+  const categoryItems = Object.fromEntries(
+    categories.map((c) => [c.id, c.name]),
+  )
+  const authorItems = Object.fromEntries(uniqueAuthors.map((a) => [a, a]))
+
   const availableCategories = categories.filter(
     (c) => !prefs.categories.includes(c.id),
   )
@@ -97,7 +105,7 @@ export function FeedSettings({
         </div>
         <div className="flex gap-2">
           <div className="min-w-0 flex-1">
-            <Select value={sourceToAdd} onValueChange={(v) => setSourceToAdd(v ?? '')}>
+            <Select value={sourceToAdd} items={sourceItems} onValueChange={(v) => setSourceToAdd(v ?? '')}>
               <SelectTrigger className="w-full min-w-0">
                 <SelectValue placeholder="Add a source" />
               </SelectTrigger>
@@ -151,7 +159,7 @@ export function FeedSettings({
         </div>
         <div className="flex gap-2">
           <div className="min-w-0 flex-1">
-            <Select value={categoryToAdd} onValueChange={(v) => setCategoryToAdd(v ?? '')}>
+            <Select value={categoryToAdd} items={categoryItems} onValueChange={(v) => setCategoryToAdd(v ?? '')}>
               <SelectTrigger className="w-full min-w-0">
                 <SelectValue placeholder="Add a category" />
               </SelectTrigger>
@@ -205,7 +213,7 @@ export function FeedSettings({
         </div>
         <div className="flex gap-2">
           <div className="min-w-0 flex-1">
-            <Select value={authorToAdd} onValueChange={(v) => setAuthorToAdd(v ?? '')}>
+            <Select value={authorToAdd} items={authorItems} onValueChange={(v) => setAuthorToAdd(v ?? '')}>
               <SelectTrigger className="w-full min-w-0">
                 <SelectValue placeholder="Add an author" />
               </SelectTrigger>

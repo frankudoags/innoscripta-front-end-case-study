@@ -1,65 +1,74 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { registry } from '@/lib/provider/registry'
-import type { ArticleFilters } from '@/lib/types'
+} from "@/components/ui/select";
+import { registry } from "@/lib/provider/registry";
+import type { ArticleFilters } from "@/lib/types";
 
-const categoryQueryKey = ['categories']
+const categoryQueryKey = ["categories"];
 
 interface FiltersBarProps {
-  filters: ArticleFilters
-  onApply: (filters: ArticleFilters) => void
+  filters: ArticleFilters;
+  onApply: (filters: ArticleFilters) => void;
 }
 
 export function FiltersBar({ filters, onApply }: FiltersBarProps) {
-  const [keyword, setKeyword] = useState(filters.keyword ?? '')
-  const [fromDate, setFromDate] = useState(filters.fromDate ?? '')
-  const [toDate, setToDate] = useState(filters.toDate ?? '')
-  const [category, setCategory] = useState(filters.categories?.[0] ?? 'all')
-  const [source, setSource] = useState(filters.sources?.[0] ?? 'all')
+  const [keyword, setKeyword] = useState(filters.keyword ?? "");
+  const [fromDate, setFromDate] = useState(filters.fromDate ?? "");
+  const [toDate, setToDate] = useState(filters.toDate ?? "");
+  const [category, setCategory] = useState(filters.categories?.[0] ?? "all");
+  const [source, setSource] = useState(filters.sources?.[0] ?? "all");
 
-  const sourceOptions = registry.all().map((p) => ({ id: p.id, name: p.name }))
+  const sourceOptions = registry.all().map((p) => ({ id: p.id, name: p.name }));
 
   const { data: categories = [] } = useQuery({
     queryKey: categoryQueryKey,
     queryFn: async () => {
       for (const p of registry.all()) {
-        const cats = await p.getCategories?.()
-        if (cats) return cats
+        const cats = await p.getCategories?.();
+        if (cats) return cats;
       }
-      return []
+      return [];
     },
     staleTime: Infinity,
-  })
+  });
+
+  const sourceItems = {
+    all: "All sources",
+    ...Object.fromEntries(sourceOptions.map((s) => [s.id, s.name])),
+  };
+  const categoryItems = {
+    all: "All categories",
+    ...Object.fromEntries(categories.map((c) => [c.id, c.name])),
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     onApply({
       keyword: keyword.trim() || undefined,
       fromDate: fromDate || undefined,
       toDate: toDate || undefined,
-      categories: category && category !== 'all' ? [category] : undefined,
-      sources: source && source !== 'all' ? [source] : undefined,
-    })
-  }
+      categories: category && category !== "all" ? [category] : undefined,
+      sources: source && source !== "all" ? [source] : undefined,
+    });
+  };
 
   const handleReset = () => {
-    setKeyword('')
-    setFromDate('')
-    setToDate('')
-    setCategory('all')
-    setSource('all')
-    onApply({})
-  }
+    setKeyword("");
+    setFromDate("");
+    setToDate("");
+    setCategory("all");
+    setSource("all");
+    onApply({});
+  };
 
   return (
     <form
@@ -102,7 +111,11 @@ export function FiltersBar({ filters, onApply }: FiltersBarProps) {
 
         <div className="flex min-w-0 flex-col gap-1.5">
           <Label>Source</Label>
-          <Select value={source} onValueChange={(v) => setSource(v ?? '')}>
+          <Select
+            value={source}
+            items={sourceItems}
+            onValueChange={(v) => setSource(v ?? "")}
+          >
             <SelectTrigger className="w-full min-w-0">
               <SelectValue />
             </SelectTrigger>
@@ -119,7 +132,11 @@ export function FiltersBar({ filters, onApply }: FiltersBarProps) {
 
         <div className="flex min-w-0 flex-col gap-1.5">
           <Label>Category</Label>
-          <Select value={category} onValueChange={(v) => setCategory(v ?? '')}>
+          <Select
+            value={category}
+            items={categoryItems}
+            onValueChange={(v) => setCategory(v ?? "")}
+          >
             <SelectTrigger className="w-full min-w-0">
               <SelectValue />
             </SelectTrigger>
@@ -144,5 +161,5 @@ export function FiltersBar({ filters, onApply }: FiltersBarProps) {
         </div>
       </div>
     </form>
-  )
+  );
 }
